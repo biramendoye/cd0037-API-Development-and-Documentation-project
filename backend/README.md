@@ -67,18 +67,18 @@ One note before you delve into your tasks: for each endpoint, you are expected t
 8. Create a `POST` endpoint to get questions to play the quiz. This endpoint should take a category and previous question parameters and return a random questions within the given category, if provided, and that is not one of the previous questions.
 9. Create error handlers for all expected errors including 400, 404, 422, and 500.
 
-## Documenting your Endpoints
+## API Documentation
+### Getting Started
+- Base URL: At present this app can only be run locally and is not hosted as a base URL. The backend app is hosted at the default, `http://127.0.0.1:5000/`, which is set as a proxy in the frontend configuration.
+- Authentication: This version of the application does not require authentication or API keys.
+- Environment variables : Use .env file to set these secrets : DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
 
-You will need to provide detailed documentation of your API endpoints including the URL, request parameters, and the response body. Use the example below as a reference.
+### Endpoints
 
-### Documentation Example
-
-`GET '/api/v1.0/categories'`
-
+`GET '/categories'`
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 - Request Arguments: None
-- Returns: An object with a single key, `categories`, that contains an object of `id: category_string` key: value pairs.
-
+- Returns: An object with a single key, `categories`, that contains an object of `id: category_string` key: value pairs and success value .
 ```json
 {
   "1": "Science",
@@ -87,6 +87,261 @@ You will need to provide detailed documentation of your API endpoints including 
   "4": "History",
   "5": "Entertainment",
   "6": "Sports"
+}
+```
+
+`GET '/questions'`
+- Fetches a paginated set of questions, a total number of questions, all categories and current category string.
+- Request Arguments: page - integer
+- Returns: An object with 10 paginated questions, total questions, object including all categories, success value and current category string
+```json
+{
+    "categories": {
+        "1": "Science",
+        "2": "Art",
+        "3": "Geography",
+        "4": "History",
+        "5": "Entertainment",
+        "6": "Sports"
+    },
+    "current_category": "",
+    "questions": [
+        {
+            "answer": "Agra",
+            "category": 3,
+            "difficulty": 2,
+            "id": 15,
+            "question": "The Taj Mahal is located in which Indian city?"
+        },
+        {
+            "answer": "Escher",
+            "category": 2,
+            "difficulty": 1,
+            "id": 16,
+            "question": "Which Dutch graphic artist–initials M C was a creator of optical illusions?"
+        },
+        {
+            "answer": "Mona Lisa",
+            "category": 2,
+            "difficulty": 3,
+            "id": 17,
+            "question": "La Giaconda is better known as what?"
+        },
+        {
+            "answer": "One",
+            "category": 2,
+            "difficulty": 4,
+            "id": 18,
+            "question": "How many paintings did Van Gogh sell in his lifetime?"
+        },
+        {
+            "answer": "Jackson Pollock",
+            "category": 2,
+            "difficulty": 2,
+            "id": 19,
+            "question": "Which American artist was a pioneer of Abstract Expressionism, and a leading exponent of action painting?"
+        },
+        {
+            "answer": "The Liver",
+            "category": 1,
+            "difficulty": 4,
+            "id": 20,
+            "question": "What is the heaviest organ in the human body?"
+        },
+        {
+            "answer": "Alexander Fleming",
+            "category": 1,
+            "difficulty": 3,
+            "id": 21,
+            "question": "Who discovered penicillin?"
+        },
+        {
+            "answer": "Blood",
+            "category": 1,
+            "difficulty": 4,
+            "id": 22,
+            "question": "Hematology is a branch of medicine involving the study of what?"
+        },
+        {
+            "answer": "Scarab",
+            "category": 4,
+            "difficulty": 4,
+            "id": 23,
+            "question": "Which dung beetle was worshipped by the ancient Egyptians?"
+        },
+        {
+            "answer": "A1",
+            "category": 5,
+            "difficulty": 1,
+            "id": 24,
+            "question": "Q1"
+        }
+    ],
+    "success": true,
+    "total_questions": 20
+```
+
+`GET '/categories/<int:id>/questions'`
+- Fetches questions for a category specified by id request argument
+- Request Arguments: id - integer
+- Returns: An object with questions for the specified category, total questions, success value and current category string
+```json
+{
+    "current_category": "Science",
+    "questions": [
+        {
+            "answer": "The Liver",
+            "category": 1,
+            "difficulty": 4,
+            "id": 20,
+            "question": "What is the heaviest organ in the human body?"
+        },
+        {
+            "answer": "Alexander Fleming",
+            "category": 1,
+            "difficulty": 3,
+            "id": 21,
+            "question": "Who discovered penicillin?"
+        },
+        {
+            "answer": "Blood",
+            "category": 1,
+            "difficulty": 4,
+            "id": 22,
+            "question": "Hematology is a branch of medicine involving the study of what?"
+        }
+    ],
+    "success": true,
+    "total_questions": 3
+}
+```
+
+`DELETE '/questions/<int:id>'`
+- Deletes a specified question using the id of the question
+- Request Arguments: id - integer
+- Returns: An object with keys `deleted` the id of the deleted question and `success` value.
+```json
+{
+    "deleted": 22,
+    "success": true
+}
+```
+
+`POST '/questions'`
+- Sends a post request in order to add a new question
+- Request Body: An object with keys, the question, the answer, the difficulty and the category
+```json
+{
+    "question": "Who hosts the family feud TV show ?",
+    "answer": "Steve Harvey",
+    "difficulty": 4,
+    "category": 5
+}
+```
+- Returns: success value
+```json
+{
+    "success": true
+}
+```
+
+`POST '/questions'`
+- Sends a post request in order to search for a specific question by search term
+- Request Body: An object with the key `searchTerm`
+```json
+{
+    "searchTerm": "title"
+}
+```
+- Returns: any array of questions, a number of totalQuestions that met the search term and the current category string
+```json
+{
+    "current_category": "",
+    "questions": [
+        {
+            "answer": "Edward Scissorhands",
+            "category": 5,
+            "difficulty": 3,
+            "id": 6,
+            "question": "What was the title of the 1990 fantasy directed by Tim Burton about a young man with multi-bladed appendages?"
+        }
+    ],
+    "success": true,
+    "total_questions": 1
+}
+```
+
+`POST '/questions'`
+- Sends a post request in order to get questions based on category
+- Request Body: An object with the key `type`
+```json
+{
+    "type": "History"
+}
+```
+- Returns: any array of questions, a number of totalQuestions based on category and the current category string
+```json
+{
+    "current_category": "",
+    "questions": [
+        {
+            "answer": "Muhammad Ali",
+            "category": 4,
+            "difficulty": 1,
+            "id": 9,
+            "question": "What boxer's original name is Cassius Clay?"
+        },
+        {
+            "answer": "George Washington Carver",
+            "category": 4,
+            "difficulty": 2,
+            "id": 12,
+            "question": "Who invented Peanut Butter?"
+        },
+        {
+            "answer": "Scarab",
+            "category": 4,
+            "difficulty": 4,
+            "id": 23,
+            "question": "Which dung beetle was worshipped by the ancient Egyptians?"
+        }
+    ],
+    "success": true,
+    "total_questions": 3
+}
+```
+
+`POST '/quizzes'`
+- Sends a post request in order to get the next question
+- Request Body: A list of id of the previous questions and an category
+```json
+{
+    "previous_questions": [1, 4, 20, 15]
+    "quiz_category": {"type": "History", "id": 4}
+ }
+```
+- Returns: a single new question object and success value
+```json
+{
+    "question": {
+        "answer": "George Washington Carver",
+        "category": 4,
+        "difficulty": 2,
+        "id": 12,
+        "question": "Who invented Peanut Butter?"
+    },
+    "success": true
+}
+```
+
+### Error Handling
+
+Errors are returned as JSON objects in the following format:
+```
+{
+    "success": False,
+    "error": 400,
+    "message": "bad request"
 }
 ```
 
