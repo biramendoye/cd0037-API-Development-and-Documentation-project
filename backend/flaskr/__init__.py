@@ -86,11 +86,8 @@ def create_app(test_config=None):
         try:
             question = Question.query.filter(Question.id == question_id).one_or_none()
 
-            if question is None:
-                abort(404)
-            else:
-                question.delete()
-                return jsonify(
+            question.delete()
+            return jsonify(
                     {
                         "success": True,
                         "deleted": question_id,
@@ -184,17 +181,14 @@ def create_app(test_config=None):
         try:
             category = Category.query.filter(Category.id == category_id).one_or_none()
 
-            if category is None:
-                abort(404)
-            else:
-                selection = Question.query.filter(
-                    Question.category == category_id
+            selection = Question.query.filter(
+                    Question.category == category.id
                 ).all()
-                current_questions = paginate_resources(
+            current_questions = paginate_resources(
                     request, selection, QUESTIONS_PER_PAGE
                 )
 
-                return jsonify(
+            return jsonify(
                     {
                         "success": True,
                         "questions": current_questions,
@@ -203,7 +197,7 @@ def create_app(test_config=None):
                     }
                 )
         except:
-            abort(400)
+            abort(404)
 
     @app.route("/quizzes", methods=["POST"])
     def get_quizzes():
@@ -219,7 +213,7 @@ def create_app(test_config=None):
 
         # in the frontend quiz_category is a dict like {'type: 'History', 'id': 4}
         try:
-            if quiz_category is None:
+            if quiz_category is None or quiz_category["id"] == 0:
                 selection = Question.query.filter(
                     ~Question.id.in_(previous_questions),
                 ).all()
@@ -232,14 +226,21 @@ def create_app(test_config=None):
             current_questions = paginate_resources(
                 request, selection, QUESTIONS_PER_PAGE
             )
-            random_question = random.choice(current_questions)
+            if len(current_questions) == 0:
+                return jsonify(
+                    {
+                        "success": True,
+                    }
+                )
+            else:
+                random_question = random.choice(current_questions)
 
-            return jsonify(
-                {
-                    "success": True,
-                    "question": random_question,
-                }
-            )
+                return jsonify(
+                    {
+                        "success": True,
+                        "question": random_question,
+                    }
+                )
         except:
             abort(422)
 

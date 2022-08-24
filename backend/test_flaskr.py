@@ -56,6 +56,13 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data["categories"])
 
+    def test_get_categories_not_allowed(self):
+        res = self.client().post("/categories")
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 405)
+        self.assertEqual(data["message"], "Method Not Allowed")
+
     def test_get_questions_successfully(self):
         res = self.client().get("/questions")
         data = json.loads(res.data)
@@ -76,7 +83,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["message"], "resource not found")
 
     def test_delete_question(self):
-        res = self.client().delete("/questions/1")
+        res = self.client().delete("/questions/23")
         data = json.loads(res.data)
 
         question = Question.query.filter(Question.id == 1).one_or_none()
@@ -119,6 +126,14 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data["total_questions"])
         self.assertTrue(data["current_category"])
 
+    def test_search_question_failed(self):
+        res = self.client().post("/questions", json={"searchTermmmmmmmmm": ""})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "unprocessable")
+
     def test_get_questions_based_on_category(self):
         res = self.client().get("/categories/1/questions")
         data = json.loads(res.data)
@@ -149,7 +164,7 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data["success"], True)
-        self.assertTrue(data["questions"])
+        self.assertTrue(data["question"])
 
     def test_unprocessable_quizzes(self):
         res = self.client().post(
